@@ -1,5 +1,12 @@
+#folder
 /frame
 /unknowfaces
 /user
 /images
 /model
+
+#cache
+__pycache__
+
+#classifier
+my_classifier.pkl
