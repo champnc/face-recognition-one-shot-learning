@@ -2,11 +2,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 import argparse
 import facenet
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import sys
 import math
 import pickle
@@ -20,17 +21,19 @@ with tf.Graph().as_default():
         datadir = './images'
         dataset = facenet.get_dataset(datadir)
         paths, labels = facenet.get_image_paths_and_labels(dataset)
-        print('Number of classes: %d' % len(dataset))
-        print('Number of images: %d' % len(paths))
 
         print('Loading feature extraction model')
         modeldir = './model/20180402-114759.pb'
         facenet.load_model(modeldir)
 
         images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
+        #print(images_placeholder)
         embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
+        #rint(embeddings)
         phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
+        #print(phase_train_placeholder)
         embedding_size = embeddings.get_shape()[1]
+        #print(embedding_size)
 
         # Run forward pass to calculate embeddings
         print('Calculating features for images')
@@ -52,6 +55,8 @@ with tf.Graph().as_default():
 
         # Train classifier
         print('Training classifier')
+        print('Number of classes: %d' % len(dataset))
+        print('Number of images: %d' % len(paths))
         model = SVC(kernel='linear', probability=True)
         model.fit(emb_array, labels)
 
@@ -62,5 +67,6 @@ with tf.Graph().as_default():
         with open(classifier_filename_exp, 'wb') as outfile:
             pickle.dump((model, class_names), outfile)
         print('Saved classifier model to file "%s"' % classifier_filename_exp)
-        print('Goodluck')
+
+    
 

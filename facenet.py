@@ -367,7 +367,7 @@ def load_model(model, input_map=None):
     model_exp = os.path.expanduser(model)
     if (os.path.isfile(model_exp)):
         print('Model filename: %s' % model_exp)
-        with gfile.FastGFile(model_exp,'rb') as f:
+        with gfile.GFile(model_exp,'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def, input_map=input_map, name='')
