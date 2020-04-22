@@ -47,7 +47,7 @@ class Recognition:
                 cv2.imshow("Face: " + str(i), face.image)
             face.embedding = self.encoder.generate_embedding(face)
             face.name , face.prob = self.identifier.identify(face)
-            if face.prob < 0.80:
+            if face.prob < 0.75:
                 face.name = 'unknown'
 
         return faces
