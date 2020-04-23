@@ -3,21 +3,22 @@ import numpy as np
 import os
 import argparse
 import sys
+import face as f
 
 def main(args):
 
     #face detector
-    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    face_recognition = f.Detection()
 
     #read webcam video
-    video_capture = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
 
     #take name args
-    name = args.name
+    face_name = args.face_name
 
     path = 'images'
 
-    directory = os.path.join(path, name)
+    directory = os.path.join(path, face_name)
     print(directory)
 
     #check if already have --name folder
@@ -29,25 +30,24 @@ def main(args):
     count = 0
 
     while number_of_images < MAX_NUMBER_OF_IMAGES:
-        ret, frame = video_capture.read()
+        ret, frame = cap.read()
 
-        frame = cv2.flip(frame, 1)
+        faces = face_recognition.find_faces(frame)
 
-        frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        faces = face_cascade.detectMultiScale(frame, 1.3, 5)
-
-        for (x,y,w,h) in faces:
-            cv2.rectangle(frame,(x-10,y-10),(x+w+20,y+h+20),(255,0,0),1)
-            sub_face = frame[y-10:y+h+20, x-10:x+w+20]
+        for face in faces:
+            face_bb = face.bounding_box.astype(int)
+                    
+            cv2.rectangle(frame,(face_bb[0]-10, face_bb[1]-10), (face_bb[2]+10, face_bb[3]+10),(0, 255, 0), 2)
+            
+            sub_face = frame[face_bb[1]:face_bb[3], face_bb[0]:face_bb[2]] 
             dim = (160, 160)
             resized = cv2.resize(sub_face, dim, interpolation = cv2.INTER_AREA)
-
+                    
             if count == 5:
-                    FaceFileName = str(path)+ "/" + str(name) + "/" + str(number_of_images) + ".jpg"
-                    cv2.imwrite(FaceFileName, resized)
-                    number_of_images += 1
-                    count = 0
+                FaceFileName = str(path)+ "/" + str(face_name) + "/" + str(number_of_images) + ".jpg"
+                cv2.imwrite(FaceFileName, resized)
+                number_of_images += 1
+                count = 0
             count+=1       
 
         cv2.imshow('add new data', frame)
@@ -61,7 +61,7 @@ def main(args):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--name', type=str,
+    parser.add_argument('--face_name', type=str,
         help='Name of the user')
 
     return parser.parse_args(argv)
