@@ -34,6 +34,7 @@ def main(args):
 
         faces = face_recognition.find_faces(frame)
 
+        # loop founded face
         for face in faces:
             face_bb = face.bounding_box.astype(int)
                     
@@ -43,6 +44,7 @@ def main(args):
             dim = (160, 160)
             resized = cv2.resize(sub_face, dim, interpolation = cv2.INTER_AREA)
                     
+            # save image in --name folder
             if count == 5:
                 FaceFileName = str(path)+ "/" + str(face_name) + "/" + str(number_of_images) + ".jpg"
                 cv2.imwrite(FaceFileName, resized)
@@ -52,18 +54,18 @@ def main(args):
 
         cv2.imshow('add new data', frame)
 
+        # Exit program
         if(cv2.waitKey(1) & 0xFF == ord('q')):
             break
 
     video_capture.release()
     cv2.destroyAllWindows()
 
+# Function to take argument
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-    
     parser.add_argument('--face_name', type=str,
         help='Name of the user')
-
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
